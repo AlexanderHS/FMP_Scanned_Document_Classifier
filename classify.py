@@ -102,7 +102,7 @@ def main():
         reads_as_valid = batch is not None and aw_no is not None
         if os.path.exists('rotated.pdf'):
             os.remove('rotated.pdf')
-
+    print ('Batch is: ' + batch)
     if not reads_as_valid:
         move_to_unclassified(args.filepath)
     else:
