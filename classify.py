@@ -57,6 +57,7 @@ def interpret(filepath):
     try:
         print('OCRifying...')
         converted_text = print_pages(filepath)
+        print('raw output: ' + converted_text)
         print('Done.')
         batch = (get_batch(converted_text))
         aw_no = (get_aw(converted_text))
