@@ -4,6 +4,7 @@ import argparse
 import pdf2image
 import calendar
 import PyPDF2
+import ntpath
 
 try:
     from PIL import Image
@@ -37,6 +38,7 @@ def move_to_unclassified(filepath):
     #dest_path = 'unclassified/'
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
+    filepath = ntpath.basename(filepath)
     destination_full = dest_path + filepath
     shutil.move(filepath, destination_full)
 
@@ -49,6 +51,7 @@ def move_to_classified(filepath, batch, aw_no):
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
     destination_full = dest_path + batch + ' ' + aw_no + '.pdf'
+    filepath = ntpath.basename(filepath)
     shutil.move(filepath, destination_full)
 
 def interpret(filepath):
