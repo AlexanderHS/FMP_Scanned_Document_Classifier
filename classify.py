@@ -57,7 +57,6 @@ def interpret(filepath):
     try:
         print('OCRifying...')
         converted_text = print_pages(filepath)
-        print('raw output: ' + converted_text)
         print('Done.')
         batch = (get_batch(converted_text))
         aw_no = (get_aw(converted_text))
@@ -66,6 +65,7 @@ def interpret(filepath):
             aw_no = None
     except:
         print('Error: Unable to read a valid file at that path.')
+        return None, None
     return (batch, aw_no)
 
 def rotate(filepath):
@@ -98,15 +98,17 @@ def main():
     
     # If reads as junk try rotating
     if not reads_as_valid:
+        print('going to try a rotation...')
         rotate(args.filepath)
         batch, aw_no = interpret('rotated.pdf')
         reads_as_valid = batch is not None and aw_no is not None
         if os.path.exists('rotated.pdf'):
             os.remove('rotated.pdf')
-    print ('Batch is: ' + batch)
     if not reads_as_valid:
+        print('saving as unclassified')
         move_to_unclassified(args.filepath)
     else:
+        print('saving as classified')
         move_to_classified(args.filepath, batch, aw_no)
 
 if __name__ == "__main__":
