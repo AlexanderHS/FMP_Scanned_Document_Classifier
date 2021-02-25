@@ -71,7 +71,7 @@ def move_to_classified(filepath, batch, aw_no):
     #filepath = ntpath.basename(filepath)
     try:
         shutil.copy(filepath, destination_full)
-    except Exception:
+    except PermissionError:
         pass
     os.remove(filepath)
 
@@ -79,9 +79,8 @@ def interpret(filepath):
     batch = ''
     aw_no = ''
     try:
-        print('OCRifying...')
+        print('Interpretting. This can take a moment...')
         converted_text = print_pages(filepath)
-        print(converted_text)
         print('Done.')
         batch = (get_batch(converted_text))
         print(batch)
