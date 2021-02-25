@@ -39,7 +39,8 @@ def move_to_unclassified(filepath):
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
     destination_full = dest_path + ntpath.basename(filepath)
-    shutil.move(filepath, destination_full)
+    shutil.copy(filepath, destination_full)
+    os.remove(filepath)
 
 def move_to_classified(filepath, batch, aw_no):
     dest_path = '/mnt/scans/Batch_Records/'
@@ -50,8 +51,9 @@ def move_to_classified(filepath, batch, aw_no):
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
     destination_full = dest_path + batch + ' ' + aw_no + '.pdf'
-    filepath = ntpath.basename(filepath)
-    shutil.move(filepath, destination_full)
+    #filepath = ntpath.basename(filepath)
+    shutil.copy(filepath, destination_full)
+    os.remove(filepath)
 
 def interpret(filepath):
     batch = ''
