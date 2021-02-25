@@ -1,24 +1,52 @@
-import calendar
 import os
-import shutil
+from unidecode import unidecode
 
-def move_to_classified(filepath, batch, aw_no):
-    dest_path = '/mnt/scans/Batch Records/'
-    #dest_path = 'Batch_Records/'
-    dest_path += '20' + batch[0:2] + '/'
-    month_no = int(batch[2:4])
-    dest_path += str(month_no).zfill(2) + '.' + calendar.month_abbr[month_no] + '/'
-    if not os.path.exists(dest_path):
-        os.makedirs(dest_path)
-    destination_full = dest_path + batch + ' ' + aw_no + '.pdf'
-    index = 0;
-    while os.path.exists(destination_full):
+
+def is_int(s):
+    try: 
+        int(s)
+        return True
+    except ValueError:
+        return False
+
+def get_aw(text):
+    if 'Work Order' not in text:
+        return None
+    guess = ''
+    index = 0
+    while not (guess.startswith('AW-') and is_int(guess[4:])):
+        try:
+            guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
+        except IndexError:
+            return None
         index += 1
-        destination_full = dest_path + batch + ' ' + aw_no + index.zfill(3) + '.pdf'
-    try:
-        shutil.copy(filepath, destination_full)
-    except PermissionError:
-        pass
-    os.remove(filepath)
+    return guess
 
-move_to_classified('~/192.168.0.109.txt', '2001001', 'AW-001')
+def get_batch(text):
+    if 'Batch' not in text:
+        return None
+    guess = ''
+    index = 0
+    while len(guess) < 7 or not is_int(guess[0:7]):
+        print('considering guess: ' + guess)
+        try:
+            guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
+        except IndexError:
+            return None
+        index += 1
+    return guess
+
+def remove_weird(text):
+    return unidecode(text)
+
+text = """
+b"DOT9008 Disposable Oxygen Tubing - Smooth Bore: 8m Revi 8 'Page 1 of 6\n\n   \n\n \n\nWork Order No: AW-44507 Batch No: 2011314 Expiry Date: Nov 2025\n\nDate Issued: 16/10/2020 11:38:43 AM This Document Refers To: PWI 145\n\n \n\n \n\nSamples Required (units) Quantity Required: 600\n\n \n\n \n\nSign/Date for Closure:\n\n \n\nQuality Assuranee Release Check List / Sign Off\n\nComplies - doc / evidence |\npresent and complete Reviewed By\n\nRelease Check see\nNo N/A Initials/Date\n\n \n\n \n\nYes\nProduct Inspection\nFinished Product Inspection (QFM311, QFMO070, ee Ol\n\nQwiogs)\noOo a\n\nPackage Integrity testing (QFM113, QWI014)\n\n \n\nProduction Order\nCheck for no blanks, all signatures present, cross\nouts noted and fixed to GMP standards and a\nreason documented where needed\n\nCheck in process tests/inspections performed and\nwithin limits\n\n \n\nLabelling\nCheck the Batch number, expiry date and product\nnumber, box and product labelling, correlate to PO\nand actual contents of box\n\n \n\nSterilisation\nCycle No:\n\nCycle parameters/documentation (sterilization\ngraphs/printouts)\n\nBacterial indicators\n\n \n\nClean Room- Magnehelic Gauge Monitoring\n\nReview log book readings\n\n \n\n \n\n \n\n \n\nDeviation and actions\n\n \n\n \n\nNumber of Boxes for release: {2 Final Batch Approval: (fo No\n\nNumber of Units for release: 600\n\nApproved By: EUR AZ uticn Date: 2}2} 2020\n\nAware Inventory Transfer Number: I#;_ (NVA O(33-4C/ 34\n\n \n\nPrinted: 26/11/2020 7:37:21 AM\n\x0c'
+"""
+text = remove_weird(text)
+
+
+
+print(get_batch(text))
+print(get_aw(text))
+
+print('hello {}'.format(1))
