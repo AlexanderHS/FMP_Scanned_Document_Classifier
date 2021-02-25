@@ -38,8 +38,7 @@ def move_to_unclassified(filepath):
     #dest_path = 'unclassified/'
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
-    #filepath = ntpath.basename(filepath)
-    destination_full = dest_path + filepath
+    destination_full = dest_path + ntpath.basename(filepath)
     shutil.move(filepath, destination_full)
 
 def move_to_classified(filepath, batch, aw_no):
