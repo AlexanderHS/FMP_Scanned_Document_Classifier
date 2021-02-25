@@ -78,7 +78,7 @@ def move_to_classified(filepath, batch, aw_no):
     while os.path.exists(destination_full):
         print('Path ' + destination_full + ' was taken so trying next...')
         index += 1
-        destination_full = dest_path + batch + ' ' + aw_no + index.zfill(3) + '.pdf'
+        destination_full = dest_path + batch + ' ' + aw_no + str(index).zfill(3) + '.pdf'
     try:
         shutil.copy(filepath, destination_full)
     except PermissionError:
