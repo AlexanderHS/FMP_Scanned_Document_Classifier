@@ -91,7 +91,7 @@ def interpret(filepath):
     try:
         print()
         print('Interpretting. This can take a moment...')
-        converted_text = print_pages(filepath).replace(u'\u2018', '\'').replace(u'\u2014', '-')
+        converted_text = print_pages(filepath).replace(u'\u2018', '\'').replace(u'\u2014', '-').replace(u'\u2019', '-')
         #converted_text = converted_text.encode('utf-8')
         print('         -START CONTENT-')
         print(converted_text)
