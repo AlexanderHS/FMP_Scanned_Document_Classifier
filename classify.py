@@ -87,6 +87,7 @@ def move_to_classified(filepath, batch, aw_no):
         index += 1
         destination_full = dest_path + batch + ' ' + aw_no + '_' + str(index).zfill(3) + '.pdf'
     try:
+        print('copying from {} to {}'.format(filepath, destination_full))
         shutil.copy(filepath, destination_full)
     except PermissionError:
         pass
