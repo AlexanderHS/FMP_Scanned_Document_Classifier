@@ -1,4 +1,9 @@
 #!/bin/bash
 python3 -m venv venv
 source venv/bin/activate
-pip install pdf2image PyPDF2 pytesseract ntpath
+sudo apt-get update
+sudo apt-get install poppler-utils libleptonica-dev tesseract-ocr libtesseract-dev -y
+pip install pdf2image PyPDF2 pytesseract ntpath poppler-utils tesseract tesseract-ocr
+
+# tesseract install here
+# https://stackoverflow.com/a/52231794/5977682
