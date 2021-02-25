@@ -90,11 +90,11 @@ def interpret(filepath):
     aw_no = ''
     try:
         print('Interpretting. This can take a moment...')
-        converted_text = print_pages(filepath)
-        converted_text = converted_text.encode('utf-8')
-        print('--')
-        print(converted_text)
-        print('--')
+        converted_text = print_pages(filepath).replace(u'\u2018', '\'').replace(u'\u2014', '-')
+        #converted_text = converted_text.encode('utf-8')
+        #print('--')
+        #print(converted_text)
+        #print('--')
         print('Done.')
         batch = (get_batch(converted_text))
         print('# Found Batch: ' + batch)
