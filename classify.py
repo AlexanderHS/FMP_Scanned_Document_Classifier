@@ -1,6 +1,5 @@
 import os
 import shutil
-import argparse
 import pdf2image
 import calendar
 import PyPDF2
@@ -8,6 +7,7 @@ import ntpath
 import glob
 from PIL import Image
 import pytesseract
+from unidecode import unidecode
 
 def pdf_to_img(pdf_file):
     return pdf2image.convert_from_path(pdf_file)
@@ -59,6 +59,11 @@ def move_to_unclassified(filepath):
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
     destination_full = dest_path + ntpath.basename(filepath)
+    index = 0
+    while os.path.exists(destination_full):
+        print('Path ' + destination_full + ' was taken so trying next...')
+        index += 1
+        destination_full = dest_path + str(index).zfill(3) + '_' + ntpath.basename(filepath)
     try:
         shutil.copy(filepath, destination_full)
     except Exception:
@@ -85,13 +90,16 @@ def move_to_classified(filepath, batch, aw_no):
         pass
     os.remove(filepath)
 
+def remove_weird(text):
+    return unidecode.unidecode(text)
+
 def interpret(filepath):
     batch = ''
     aw_no = ''
     try:
         print()
         print('Interpretting. This can take a moment...')
-        converted_text = print_pages(filepath).replace(u'\u2018', '\'').replace(u'\u2014', '-').replace(u'\u2019', '-')
+        converted_text = remove_weird(print_pages(filepath))
         #converted_text = converted_text.encode('utf-8')
         print('         -START CONTENT-')
         print(converted_text)
