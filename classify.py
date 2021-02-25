@@ -64,7 +64,7 @@ def move_to_unclassified(filepath):
     except Exception:
         pass
     os.remove(filepath)
-    
+
 def move_to_classified(filepath, batch, aw_no):
     dest_path = '/mnt/scans/Batch Records/'
     #dest_path = 'Batch_Records/'
@@ -76,6 +76,7 @@ def move_to_classified(filepath, batch, aw_no):
     destination_full = dest_path + batch + ' ' + aw_no + '.pdf'
     index = 0;
     while os.path.exists(destination_full):
+        print('Path ' + destination_full + ' was taken so trying next...')
         index += 1
         destination_full = dest_path + batch + ' ' + aw_no + index.zfill(3) + '.pdf'
     try:
