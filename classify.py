@@ -105,6 +105,7 @@ def main():
 
     os.chdir("/mnt/sieve_scans")
     for file in glob.glob("*.pdf"):
+        print('Considering ' + file)
         filepath = file
 
         # Try to read
