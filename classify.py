@@ -39,7 +39,10 @@ def move_to_unclassified(filepath):
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
     destination_full = dest_path + ntpath.basename(filepath)
-    shutil.copy(filepath, destination_full)
+    try:
+        shutil.copy(filepath, destination_full)
+    except Exception:
+        pass
     os.remove(filepath)
 
 def move_to_classified(filepath, batch, aw_no):
@@ -52,7 +55,10 @@ def move_to_classified(filepath, batch, aw_no):
         os.makedirs(dest_path)
     destination_full = dest_path + batch + '_' + aw_no + '.pdf'
     #filepath = ntpath.basename(filepath)
-    shutil.copy(filepath, destination_full)
+    try:
+        shutil.copy(filepath, destination_full)
+    except Exception:
+        pass
     os.remove(filepath)
 
 def interpret(filepath):
