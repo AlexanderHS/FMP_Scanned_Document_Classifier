@@ -95,6 +95,7 @@ def interpret(filepath):
         print(converted_text)
         print('--')
         print('Done.')
+        converted_text.encode('utf-8')
         batch = (get_batch(converted_text))
         print('# Found Batch: ' + batch)
         aw_no = (get_aw(converted_text))
