@@ -38,7 +38,7 @@ def move_to_unclassified(filepath):
     #dest_path = 'unclassified/'
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
-    filepath = ntpath.basename(filepath)
+    #filepath = ntpath.basename(filepath)
     destination_full = dest_path + filepath
     shutil.move(filepath, destination_full)
 
@@ -66,8 +66,9 @@ def interpret(filepath):
         print(aw_no)
         if not aw_no.startswith('AW-'):
             aw_no = None
-    except:
+    except Exception as e:
         print('Error: Unable to read a valid file at that path.')
+        print(e)
         return None, None
     return (batch, aw_no)
 
