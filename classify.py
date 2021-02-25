@@ -70,6 +70,7 @@ def interpret(filepath):
         converted_text = print_pages(filepath)
         print('Done.')
         batch = (get_batch(converted_text))
+        print(batch)
         aw_no = (get_aw(converted_text))
         print(aw_no)
         if not aw_no.startswith('AW-'):
