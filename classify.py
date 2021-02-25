@@ -28,8 +28,8 @@ def is_int(s):
         return False
 
 def get_aw(text):
-    if 'Work Order' not in text:
-        return None
+    #if 'Work Order' not in text:
+    #    return None
     guess = ''
     index = 0
     while not (guess.startswith('AW-') and is_int(guess[4:])):
@@ -42,8 +42,8 @@ def get_aw(text):
     return guess
 
 def get_batch(text):
-    if 'Batch' not in text:
-        return None
+    #if 'Batch' not in text:
+    #    return None
     guess = ''
     index = 0
     while len(guess) < 7 or not is_int(guess[0:7]):
