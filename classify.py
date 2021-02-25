@@ -7,8 +7,9 @@ import ntpath
 import glob
 from PIL import Image
 import pytesseract
+import argparse
 from unidecode import unidecode
-DEBUG = True
+DEBUG = False
 
 def pdf_to_img(pdf_file):
     return pdf2image.convert_from_path(pdf_file)
@@ -139,10 +140,12 @@ def rotate(filepath):
     pdf_in.close()
 
 def main():
-    # Parsing stuff...
-    #parser = argparse.ArgumentParser(description='When given a file path, attempts to detect the read the type and classify/move that file to the correct network location.')
-    #parser.add_argument('filepath')
-    #args = parser.parse_args()
+    parser = argparse.ArgumentParser(description='Attempts to detect and the read the type and classify/move files to the correct network locations.')
+    parser.add_argument("-v", "--verbose", help="increase output verbosity",
+                    action="store_true")
+    args = parser.parse_args()
+    if args.verbose:
+        DEBUG = True
     
     os.chdir("/mnt/sieve_scans")
     if os.path.exists('rotated.pdf'):
