@@ -91,7 +91,7 @@ def move_to_classified(filepath, batch, aw_no):
     os.remove(filepath)
 
 def remove_weird(text):
-    return unidecode.unidecode(text)
+    return unidecode(text)
 
 def interpret(filepath):
     batch = ''
