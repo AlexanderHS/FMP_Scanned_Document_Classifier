@@ -8,6 +8,7 @@ import glob
 from PIL import Image
 import pytesseract
 from unidecode import unidecode
+DEBUG = True
 
 def pdf_to_img(pdf_file):
     return pdf2image.convert_from_path(pdf_file)
@@ -33,7 +34,7 @@ def get_aw(text):
     guess = ''
     index = 0
     while not (guess.startswith('AW-') and is_int(guess[4:])):
-        #print('considering guess: ' + guess)
+        if DEBUG: print('considering AW.. guess: {}'.format(guess))
         try:
             guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
         except IndexError:
@@ -47,7 +48,7 @@ def get_batch(text):
     guess = ''
     index = 0
     while len(guess) < 7 or not is_int(guess[0:7]):
-        #print('considering guess: ' + guess)
+        if DEBUG: print('considering batch guess: {}'.format(guess))
         try:
             guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
         except IndexError:
@@ -63,7 +64,7 @@ def move_to_unclassified(filepath):
     destination_full = dest_path + ntpath.basename(filepath)
     index = 0
     while os.path.exists(destination_full):
-        print('Path ' + destination_full + ' was taken so trying next...')
+        if DEBUG: print('Path ' + destination_full + ' was taken so trying next...')
         index += 1
         destination_full = dest_path + str(index).zfill(3) + '_' + ntpath.basename(filepath)
     try:
@@ -83,11 +84,11 @@ def move_to_classified(filepath, batch, aw_no):
     destination_full = dest_path + batch + ' ' + aw_no + '.pdf'
     index = 0;
     while os.path.exists(destination_full):
-        print('Path ' + destination_full + ' was taken so trying next...')
+        if DEBUG: print('Path ' + destination_full + ' was taken so trying next...')
         index += 1
         destination_full = dest_path + batch + ' ' + aw_no + '_' + str(index).zfill(3) + '.pdf'
     try:
-        print("copying from '{}'' to '{}'".format(filepath, destination_full))
+        if DEBUG: print("copying from '{}'' to '{}'".format(filepath, destination_full))
         shutil.copy(filepath, destination_full)
     except PermissionError:
         pass
@@ -101,21 +102,22 @@ def interpret(filepath):
     aw_no = ''
     try:
         print()
-        print('Interpretting. This can take a moment...')
+        print('Interpretting {}. This can take a moment...'.format(filepath))
         converted_text = remove_weird(print_pages(filepath))
-        print('         -START CONTENT-')
-        print(converted_text)
-        print('         - END CONTENT -')
-        print('Done.')
+        if DEBUG:
+            print('         -START CONTENT-')
+            print(converted_text)
+            print('         - END CONTENT -')
+            print('Done.')
         batch = (get_batch(converted_text))
-        print('# Found Batch: ' + str(batch))
+        if DEBUG: print('# Found Batch: ' + str(batch))
         aw_no = (get_aw(converted_text))
-        print('# Work Order: ' + str(aw_no))
+        if DEBUG: print('# Work Order: ' + str(aw_no))
         if not aw_no.startswith('AW-'):
             aw_no = None
     except Exception as e:
-        print('Some Exception Occured during classification: Classification Failed.')
-        print(e)
+        if DEBUG: print('Some Exception Occured during classification: Classification Failed.')
+        if DEBUG: print('Exception details: '.format(e))
         return None, None
     return (batch, aw_no)
 
@@ -147,7 +149,6 @@ def main():
         os.remove('rotated.pdf')
 
     for file in glob.glob("*.pdf"):
-        print('Considering ' + file)
         filepath = file
 
         # Try to read
@@ -157,7 +158,7 @@ def main():
         
         # If reads as junk try rotating
         if not reads_as_valid:
-            print('going to try a rotation...')
+            if DEBUG: print('going to try a rotation...')
             rotate(filepath)
             batch, aw_no = interpret('rotated.pdf')
             reads_as_valid = batch is not None and aw_no is not None
