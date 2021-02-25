@@ -24,14 +24,21 @@ def print_pages(pdf_file):
     for pg, img in enumerate(images):
         return (ocr_core(img))
 
+def is_int(s):
+    try: 
+        int(s)
+        return True
+    except ValueError:
+        return False
+
 def get_aw(text):
     if 'Work Order No:' not in text:
         return None
     guess = ''
     index = 0
-    while not guess.startswith('AW-'):
+    while not (guess.startswith('AW-') and is_int(guess[4:])):
         try:
-            guess = text.split('Work Order No:')[1].strip().split(' ')[index].strip()
+            guess = text.split('Work Order No:')[1].strip().replace(os.linesep, ' ').split(' ')[index].strip()
         except IndexError:
             return None
         index += 1
@@ -42,9 +49,12 @@ def get_batch(text):
         return None
     guess = ''
     index = 0
-    while len(guess) < 7:
+    while len(guess) < 7 or not is_int(guess[0:4]):
+        try:
+            guess = text.split('Batch No:')[1].strip().replace(os.linesep, ' ').split(' ')[index].strip()
+        except IndexError:
+            return None
         index += 1
-        guess = text.split('Batch No:')[1].strip().split(' ')[index].strip()
     return guess
 
 def move_to_unclassified(filepath):
