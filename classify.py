@@ -131,6 +131,8 @@ def main():
     #parser = argparse.ArgumentParser(description='When given a file path, attempts to detect the read the type and classify/move that file to the correct network location.')
     #parser.add_argument('filepath')
     #args = parser.parse_args()
+    if os.path.exists('rotated.pdf'):
+        os.remove('rotated.pdf')
 
     os.chdir("/mnt/sieve_scans")
     for file in glob.glob("*.pdf"):
