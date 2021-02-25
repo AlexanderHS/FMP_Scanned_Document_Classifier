@@ -9,8 +9,6 @@ import glob
 
 try:
     from PIL import Image
-except ImportError:
-    import Image
 import pytesseract
 
 def pdf_to_img(pdf_file):
@@ -93,9 +91,9 @@ def interpret(filepath):
         print('Interpretting. This can take a moment...')
         converted_text = print_pages(filepath).replace(u'\u2018', '\'').replace(u'\u2014', '-')
         #converted_text = converted_text.encode('utf-8')
-        #print('         -START CONTENT-')
-        #print(converted_text)
-        #print('         - END CONTENT -')
+        print('         -START CONTENT-')
+        print(converted_text)
+        print('         - END CONTENT -')
         print('Done.')
         batch = (get_batch(converted_text))
         print('# Found Batch: ' + str(batch))
