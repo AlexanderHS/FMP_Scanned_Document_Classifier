@@ -89,21 +89,22 @@ def interpret(filepath):
     batch = ''
     aw_no = ''
     try:
+        print()
         print('Interpretting. This can take a moment...')
         converted_text = print_pages(filepath).replace(u'\u2018', '\'').replace(u'\u2014', '-')
         #converted_text = converted_text.encode('utf-8')
-        #print('--')
-        #print(converted_text)
-        #print('--')
+        print('         -START CONTENT-')
+        print(converted_text)
+        print('         - END CONTENT -')
         print('Done.')
         batch = (get_batch(converted_text))
-        print('# Found Batch: ' + batch)
+        print('# Found Batch: ' + str(batch))
         aw_no = (get_aw(converted_text))
-        print('# Work Order: ' + aw_no)
+        print('# Work Order: ' + str(aw_no))
         if not aw_no.startswith('AW-'):
             aw_no = None
     except Exception as e:
-        print('Error: Unable to read a valid file at that path.')
+        print('Some Exception Occured during classification: Classification Failed.')
         print(e)
         return None, None
     return (batch, aw_no)
