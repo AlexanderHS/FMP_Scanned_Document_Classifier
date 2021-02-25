@@ -38,7 +38,7 @@ def get_aw(text):
     index = 0
     while not (guess.startswith('AW-') and is_int(guess[4:])):
         try:
-            guess = text.split('Work Order No:')[1].strip().replace(os.linesep, ' ').split(' ')[index].strip()
+            guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
         except IndexError:
             return None
         index += 1
@@ -51,7 +51,7 @@ def get_batch(text):
     index = 0
     while len(guess) < 7 or not is_int(guess[0:4]):
         try:
-            guess = text.split('Batch No:')[1].strip().replace(os.linesep, ' ').split(' ')[index].strip()
+            guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
         except IndexError:
             return None
         index += 1

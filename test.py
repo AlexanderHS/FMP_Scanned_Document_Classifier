@@ -14,7 +14,7 @@ def get_aw(text):
     index = 0
     while not (guess.startswith('AW-') and is_int(guess[4:])):
         try:
-            guess = text.split('Work Order No:')[1].strip().replace(os.linesep, ' ').split(' ')[index].strip()
+            guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
         except IndexError:
             return None
         index += 1
@@ -27,23 +27,35 @@ def get_batch(text):
     index = 0
     while len(guess) < 7 or not is_int(guess[0:4]):
         try:
-            guess = text.split('Batch No:')[1].strip().replace(os.linesep, ' ').split(' ')[index].strip()
+            guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
         except IndexError:
             return None
         index += 1
     return guess
 
 text = """
-DRE9110 Disposable Resectoscope Electrode - 24 Fr Cutting Revi3 Page 1 of 6
-Loop 90� - Single Stem Bipolar - Olympus Compatible
+DRE420S
 
-Work Order No: AW-43487 Batch No: 2009009 Expiry Date: Sep 2023
+Disposable Resectoscope Electrode - 24 Fr 5mm Ball - Rev: 3
 
-Date Issued: 9/06/2020 10:11:10AM | This Document Refers To:
+30� - Single Stem Monopolar - Storz Compatible
+2009011
+
+Work Order No: AW-43489 Batch No:
+
+Date Issued:
+
+9/06/2020 10:11:08 AM
+
+This Document Refers To:
+
+Expiry Date:
 
 
 
-Samples Required (units) Quantity Required:
+Samples Required (units)
+
+| Quantity Required:
 
 
 
@@ -53,34 +65,81 @@ Sign/Date for Closure:
 
 
 
+
+
+
+
+Release Check
+
+26.0%. WL
 Quality Assurance Release Check List / Sign Off
 
 Complies - doc / evidence
-
-Release Check present and complete Reviewed By
-
+present and complete
 
 
 
 
 
 
-Yes No N/A Initials/Date
+
+
+
+Yes
+
+N/A
+
+Reviewed By
+Initials/Date
+
+
+
+
+
 Product Inspection
-Finished Product Inspection (QFM311, QFMO070,
+Finished Product Inspection (QFM311, QFMO70,
+QWI088)
 
-QWI088) eal O
-Package Integrity testing (QFM113, QWI014) cr oO Cl
+
+
+
+Package Integrity testing (QFM113, QWI014)
+
+|
+Ea
+
+O
+O
+
+O
+
+
 
 
 
 Production Order
 Check for no blanks, all signatures present, cross
 outs noted and fixed to GMP standards and a
+
 reason documented where needed
+
+
+
+
+
+
+
+
+
 
 Check in process tests/inspections performed and
 within limits
+
+O
+
+O
+
+
 
 
 
@@ -91,20 +150,52 @@ and actual contents of box
 
 
 
+
+
+
+
+
 Sterilisation
 
-Cycle No:___ 202 4b]
+Cycle No: 2.0246|
 
 Cycle parameters/documentation (sterilization
 graphs/printouts)
 
+
+
+
 Bacterial indicators
+
+Od
+
+OO
 
 
 
 Clean Room- Magnehelic Gauge Monitoring
 
 Review log book readings
+
+
+
+aa
+
+
+
+
+
+
+
+
+
+
+
+JB F [09/2020
+
+
+
+
 
 
 
@@ -120,18 +211,40 @@ Deviation and actions
 
 
 
-Number of Boxes for release: Vt Final Batch Approval: No
-
-Number of Units forrelease: =O
-
-Approved By: ( 14 uterr Date: R/OF ore
-
-Aware Inventory Transfer Number: HSole
 
 
 
-Printed: 31/08/2020 7:49:42 AM
 
+
+
+
+
+
+Number of Units for release: 4s"
+
+
+
+Aware Inventory Transfer Number: IT-
+
+
+
+31/08/2020 7:50:29 AM
+
+Printed:
+
+Number of Boxes for release: 24 Final Batch Approval:
+
+Approved By:_' Q B Utiar Date: 8/09/2620 ,
+
+ANS03\
+
+
+
+es)! No
+
+
+
+Page 1 of 6
 
 """
 
