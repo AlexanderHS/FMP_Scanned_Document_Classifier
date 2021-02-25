@@ -27,12 +27,25 @@ def print_pages(pdf_file):
 def get_aw(text):
     if 'Work Order No:' not in text:
         return None
-    return text.split('Work Order No:')[1].strip().split(' ')[0].strip()
+    guess = ''
+    index = 0
+    while not guess.startswith('AW-'):
+        try:
+            guess = text.split('Work Order No:')[1].strip().split(' ')[index].strip()
+        except IndexError:
+            return None
+        index += 1
+    return guess
 
 def get_batch(text):
     if 'Batch No:' not in text:
         return None
-    return text.split('Batch No:')[1].strip().split(' ')[0].strip()
+    guess = ''
+    index = 0
+    while len(guess) < 7:
+        index += 1
+        guess = text.split('Batch No:')[1].strip().split(' ')[index].strip()
+    return guess
 
 def move_to_unclassified(filepath):
     dest_path = '/mnt/scans/unrecognised/'
