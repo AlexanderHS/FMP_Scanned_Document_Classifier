@@ -81,6 +81,9 @@ def interpret(filepath):
     try:
         print('Interpretting. This can take a moment...')
         converted_text = print_pages(filepath)
+        print('--')
+        print(converted_text)
+        print('--')
         print('Done.')
         batch = (get_batch(converted_text))
         print('# Found Batch: ' + batch)
