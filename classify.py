@@ -83,9 +83,9 @@ def interpret(filepath):
         converted_text = print_pages(filepath)
         print('Done.')
         batch = (get_batch(converted_text))
-        print(batch)
+        print('# Found Batch: ' + batch)
         aw_no = (get_aw(converted_text))
-        print(aw_no)
+        print('# Work Order: ' + aw_no)
         if not aw_no.startswith('AW-'):
             aw_no = None
     except Exception as e:
