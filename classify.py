@@ -6,9 +6,7 @@ import calendar
 import PyPDF2
 import ntpath
 import glob
-
-try:
-    from PIL import Image
+from PIL import Image
 import pytesseract
 
 def pdf_to_img(pdf_file):
