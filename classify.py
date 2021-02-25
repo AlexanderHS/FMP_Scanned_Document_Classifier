@@ -5,6 +5,7 @@ import pdf2image
 import calendar
 import PyPDF2
 import ntpath
+import glob
 
 try:
     from PIL import Image
@@ -98,29 +99,33 @@ def rotate(filepath):
 
 def main():
     # Parsing stuff...
-    parser = argparse.ArgumentParser(description='When given a file path, attempts to detect the read the type and classify/move that file to the correct network location.')
-    parser.add_argument('filepath')
-    args = parser.parse_args()
+    #parser = argparse.ArgumentParser(description='When given a file path, attempts to detect the read the type and classify/move that file to the correct network location.')
+    #parser.add_argument('filepath')
+    #args = parser.parse_args()
 
-    # Try to read
-    batch, aw_no = interpret(args.filepath)
+    os.chdir("/mnt/sieve_scans")
+    for file in glob.glob("*.pdf"):
+        filepath = file
 
-    reads_as_valid = batch is not None and aw_no is not None
-    
-    # If reads as junk try rotating
-    if not reads_as_valid:
-        print('going to try a rotation...')
-        rotate(args.filepath)
-        batch, aw_no = interpret('rotated.pdf')
+        # Try to read
+        batch, aw_no = interpret(filepath)
+
         reads_as_valid = batch is not None and aw_no is not None
-        if os.path.exists('rotated.pdf'):
-            os.remove('rotated.pdf')
-    if not reads_as_valid:
-        print('saving as unclassified')
-        move_to_unclassified(args.filepath)
-    else:
-        print('saving as classified')
-        move_to_classified(args.filepath, batch, aw_no)
+        
+        # If reads as junk try rotating
+        if not reads_as_valid:
+            print('going to try a rotation...')
+            rotate(filepath)
+            batch, aw_no = interpret('rotated.pdf')
+            reads_as_valid = batch is not None and aw_no is not None
+            if os.path.exists('rotated.pdf'):
+                os.remove('rotated.pdf')
+        if not reads_as_valid:
+            print('saving as unclassified')
+            move_to_unclassified(filepath)
+        else:
+            print('saving as classified')
+            move_to_classified(filepath, batch, aw_no)
 
 if __name__ == "__main__":
     main()
