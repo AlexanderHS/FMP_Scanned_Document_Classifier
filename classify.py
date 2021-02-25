@@ -106,9 +106,9 @@ def interpret(filepath):
         print('Interpretting {}. This can take a moment...'.format(filepath))
         converted_text = remove_weird(print_pages(filepath))
         if DEBUG:
-            print('         -START CONTENT-')
-            print(converted_text)
-            print('         - END CONTENT -')
+            #print('         -START CONTENT-')
+            #print(converted_text)
+            #print('         - END CONTENT -')
             print('Done.')
         batch = (get_batch(converted_text))
         if DEBUG: print('# Found Batch: ' + str(batch))
