@@ -93,9 +93,9 @@ def interpret(filepath):
         print('Interpretting. This can take a moment...')
         converted_text = print_pages(filepath).replace(u'\u2018', '\'').replace(u'\u2014', '-')
         #converted_text = converted_text.encode('utf-8')
-        print('         -START CONTENT-')
-        print(converted_text)
-        print('         - END CONTENT -')
+        #print('         -START CONTENT-')
+        #print(converted_text)
+        #print('         - END CONTENT -')
         print('Done.')
         batch = (get_batch(converted_text))
         print('# Found Batch: ' + str(batch))
@@ -131,10 +131,11 @@ def main():
     #parser = argparse.ArgumentParser(description='When given a file path, attempts to detect the read the type and classify/move that file to the correct network location.')
     #parser.add_argument('filepath')
     #args = parser.parse_args()
+    
+    os.chdir("/mnt/sieve_scans")
     if os.path.exists('rotated.pdf'):
         os.remove('rotated.pdf')
 
-    os.chdir("/mnt/sieve_scans")
     for file in glob.glob("*.pdf"):
         print('Considering ' + file)
         filepath = file
