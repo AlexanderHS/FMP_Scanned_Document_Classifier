@@ -145,6 +145,7 @@ def main():
                     action="store_true")
     args = parser.parse_args()
     if args.verbose:
+        global DEBUG
         DEBUG = True
     
     os.chdir("/mnt/sieve_scans")
