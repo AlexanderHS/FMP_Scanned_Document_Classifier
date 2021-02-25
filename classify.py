@@ -70,7 +70,7 @@ def move_to_unclassified(filepath):
     os.remove(filepath)
 
 def move_to_classified(filepath, batch, aw_no):
-    dest_path = '/mnt/scans/Batch\ Records/'
+    dest_path = '/mnt/scans/Batch Records/'
     #dest_path = 'Batch_Records/'
     dest_path += '20' + batch[0:2] + '/'
     month_no = int(batch[2:4])
