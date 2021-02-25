@@ -33,6 +33,7 @@ def get_aw(text):
     guess = ''
     index = 0
     while not (guess.startswith('AW-') and is_int(guess[4:])):
+        #print('considering guess: ' + guess)
         try:
             guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
         except IndexError:
@@ -45,7 +46,8 @@ def get_batch(text):
         return None
     guess = ''
     index = 0
-    while len(guess) < 7 or not is_int(guess[0:4]):
+    while len(guess) < 7 or not is_int(guess[0:7]):
+        #print('considering guess: ' + guess)
         try:
             guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
         except IndexError:
@@ -100,10 +102,9 @@ def interpret(filepath):
         print()
         print('Interpretting. This can take a moment...')
         converted_text = remove_weird(print_pages(filepath))
-        converted_text = converted_text.encode('utf-8')
-        print('         -START CONTENT-')
-        print(converted_text)
-        print('         - END CONTENT -')
+        #print('         -START CONTENT-')
+        #print(converted_text)
+        #print('         - END CONTENT -')
         print('Done.')
         batch = (get_batch(converted_text))
         print('# Found Batch: ' + str(batch))
