@@ -68,6 +68,7 @@ def interpret(filepath):
     try:
         print('OCRifying...')
         converted_text = print_pages(filepath)
+        print(converted_text)
         print('Done.')
         batch = (get_batch(converted_text))
         print(batch)
