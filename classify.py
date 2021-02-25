@@ -77,7 +77,7 @@ def move_to_classified(filepath, batch, aw_no):
     dest_path += str(month_no).zfill(2) + '.' + calendar.month_abbr[month_no] + '/'
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
-    destination_full = dest_path + batch + '\\ ' + aw_no + '.pdf'
+    destination_full = dest_path + batch + '\ ' + aw_no + '.pdf'
     #filepath = ntpath.basename(filepath)
     try:
         shutil.copy(filepath, destination_full)
