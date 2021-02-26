@@ -1,4 +1,6 @@
 import os
+
+from pytesseract.pytesseract import TesseractError
 from unidecode import unidecode
 
 
@@ -44,9 +46,51 @@ b"DOT9008 Disposable Oxygen Tubing - Smooth Bore: 8m Revi 8 'Page 1 of 6\n\n   \
 """
 text = remove_weird(text)
 
+import pdf2image
+import pytesseract
+from pdf2image import convert_from_path
+from PIL import Image 
 
+def get_batch_aw(pdf_file):
+    pages = convert_from_path(pdf_file, 500)
+    image_counter = 1
+    for page in pages:
+        filename = "page_"+str(image_counter)+".jpg"
+        page.save(filename, 'JPEG')
+        image_counter = image_counter + 1
+    filelimit = image_counter-1
+    output_text = ''
+    for i in range(1, filelimit + 1):
+        filename = "page_"+str(i)+".jpg"
+        print('looking at {}, {}.'.format(pdf_file, filename))
+        try:
+            text = str(((pytesseract.image_to_string(Image.open(filename)))))
+            text = text.replace('-\n', '')
+            batch = get_batch(text)
+            aw = get_aw(text)
+            if batch is not None and aw is not None:
+                return batch, aw
+            #print(text)
+            #print('output_text is now {} lines.'.format(len(output_text)))
+        except Exception as e:
+            # do nothing
+            print ('Exception: {}'.format(e))
+    
+    mydir = os.getcwd()
+    filelist = [ f for f in os.listdir(mydir) if f.endswith(".jpg") ]
+    for f in filelist:
+        os.remove(os.path.join(mydir, f))
+    return None, None
 
-print(get_batch(text))
-print(get_aw(text))
+#print(get_batch(text))
+#print(get_aw(text))
 
-print('hello {}'.format(1))
+#print('hello {}'.format(1))
+filepath = '2012058.pdf'
+os.chdir("/mnt/c/Users/alex.hamilton-smith/vscode_repos/FMP_Scanned_Document_Classifier/FMP_Scanned_Document_Classifier")
+
+allpages = (print_pages(filepath))
+#print((allpages))
+print(len(allpages))
+print(get_batch(allpages))
+print(get_aw(allpages))
