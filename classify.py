@@ -147,14 +147,16 @@ def rotate(filepath):
 
 
 def get_batch_aw(pdf_file):
+    print('Opening {}'.format(pdf_file))
     pages = convert_from_path(pdf_file, 500)
     image_counter = 1
+    print('Splitting {} into pages...'.format(pdf_file))
     for page in pages:
         filename = "page_"+str(image_counter)+".jpg"
         page.save(filename, 'JPEG')
         image_counter = image_counter + 1
     filelimit = image_counter-1
-    output_text = ''
+    print('Finished making files.')
     for i in range(1, filelimit + 1):
         filename = "page_"+str(i)+".jpg"
         print('looking at {}, {}.'.format(pdf_file, filename))
@@ -185,7 +187,6 @@ def main():
     if args.verbose:
         global DEBUG
         DEBUG = True
-    print('x')
     
     os.chdir("/mnt/sieve_scans")
     if os.path.exists('rotated.pdf'):
