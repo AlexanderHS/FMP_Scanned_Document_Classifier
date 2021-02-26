@@ -185,6 +185,7 @@ def main():
     if args.verbose:
         global DEBUG
         DEBUG = True
+    print('x')
     
     os.chdir("/mnt/sieve_scans")
     if os.path.exists('rotated.pdf'):
