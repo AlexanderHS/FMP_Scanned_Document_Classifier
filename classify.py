@@ -147,6 +147,7 @@ def rotate(filepath):
 
 
 def get_batch_aw(pdf_file):
+    os.chdir("/mnt/sieve_scans")
     print('Opening {}'.format(pdf_file))
     pages = convert_from_path(pdf_file, 500)
     image_counter = 1
