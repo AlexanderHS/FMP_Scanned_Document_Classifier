@@ -63,7 +63,7 @@ def get_batch(text):
     return guess
 
 def move_to_unclassified(filepath):
-    dest_path = '/mnt/scans/unrecognised/'
+    dest_path = '\\\\fm-fil-01\\Scans\\unrecognised\\'
     #dest_path = 'unclassified/'
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
@@ -80,11 +80,11 @@ def move_to_unclassified(filepath):
     os.remove(filepath)
 
 def move_to_classified(filepath, batch, aw_no):
-    dest_path = '/mnt/scans/Batch Records/'
+    dest_path = '\\\\fm-fil-01\\Scans\\Batch Records\\'
     #dest_path = 'Batch_Records/'
-    dest_path += '20' + batch[0:2] + '/'
+    dest_path += '20' + batch[0:2] + '\\'
     month_no = int(batch[2:4])
-    dest_path += str(month_no).zfill(2) + '.' + calendar.month_abbr[month_no] + '/'
+    dest_path += str(month_no).zfill(2) + '.' + calendar.month_abbr[month_no] + '\\'
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
     destination_full = dest_path + batch + ' ' + aw_no + '.pdf'
@@ -103,6 +103,7 @@ def move_to_classified(filepath, batch, aw_no):
 def remove_weird(text):
     return unidecode(text)
 
+"""
 # flagged for deletion
 def interpret(filepath):
     batch = ''
@@ -127,9 +128,9 @@ def interpret(filepath):
         if DEBUG: print('Exception details: '.format(e))
         return None, None
     return (batch, aw_no)
+"""
 
 def rotate(filepath):
-
     pdf_in = open(filepath, 'rb')
     pdf_reader = PyPDF2.PdfFileReader(pdf_in)
     pdf_writer = PyPDF2.PdfFileWriter()
@@ -147,7 +148,7 @@ def rotate(filepath):
 
 
 def get_batch_aw(pdf_file):
-    os.chdir("/mnt/sieve_scans")
+    os.chdir("\\\\sieve\\scans")
     print('Opening {}'.format(pdf_file))
     pages = convert_from_path(pdf_file, 500)
     image_counter = 1
@@ -189,7 +190,7 @@ def main():
         global DEBUG
         DEBUG = True
     
-    os.chdir("/mnt/sieve_scans")
+    os.chdir("\\\\sieve\\scans")
     if os.path.exists('rotated.pdf'):
         os.remove('rotated.pdf')
 
