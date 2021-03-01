@@ -1,20 +1,20 @@
 import os
 import shutil
-import pdf2image
 import calendar
 import PyPDF2
 import ntpath
 import glob
-from PIL import Image
 import pytesseract
 import argparse
 from unidecode import unidecode
 import pdf2image
-import pytesseract
 from pdf2image import convert_from_path
-from PIL import Image 
+from PIL import Image
+import time
 
-DEBUG = False
+
+pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+DEBUG = True
 
 def pdf_to_img(pdf_file):
     return pdf2image.convert_from_path(pdf_file)
@@ -40,7 +40,7 @@ def get_aw(text):
     guess = ''
     index = 0
     while not (guess.startswith('AW-') and is_int(guess[4:])):
-        if DEBUG: print('considering AW.. guess: {}'.format(guess))
+        #if DEBUG: print('considering AW.. guess: {}'.format(guess))
         try:
             guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
         except IndexError:
@@ -54,16 +54,23 @@ def get_batch(text):
     guess = ''
     index = 0
     while len(guess) < 7 or not is_int(guess[0:7]):
-        if DEBUG: print('considering batch guess: {}'.format(guess))
+        #if DEBUG: print('considering batch guess: {}'.format(guess))
         try:
             guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
+            #print('guess is {}'.format(guess))
+            try:
+                month_no = int(guess[2:4])
+                _ = calendar.month_abbr[month_no]
+            except:
+                #print("Error: {} in {} doesn't look like a month".format(month_no, guess))
+                guess = '1'
         except IndexError:
             return None
         index += 1
     return guess
 
 def move_to_unclassified(filepath):
-    dest_path = '\\\\fm-fil-01\\Scans\\unrecognised\\'
+    dest_path = '\\\\fm-fil-01\\public\\SCANS\\'
     #dest_path = 'unclassified/'
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
@@ -74,13 +81,17 @@ def move_to_unclassified(filepath):
         index += 1
         destination_full = dest_path + str(index).zfill(3) + '_' + ntpath.basename(filepath)
     try:
+        if DEBUG: print("copying from '{}'' to '{}'".format(filepath, destination_full))
         shutil.copy(filepath, destination_full)
     except Exception:
         pass
     os.remove(filepath)
+    print('File Moved. Done.')
+    print()
+
 
 def move_to_classified(filepath, batch, aw_no):
-    dest_path = '\\\\fm-fil-01\\Scans\\Batch Records\\'
+    dest_path = '\\\\fm-fil-01\\qa\\Batch Records\\'
     #dest_path = 'Batch_Records/'
     dest_path += '20' + batch[0:2] + '\\'
     month_no = int(batch[2:4])
@@ -99,9 +110,14 @@ def move_to_classified(filepath, batch, aw_no):
     except PermissionError:
         pass
     os.remove(filepath)
+    print('File Moved. Done.')
+    print()
 
 def remove_weird(text):
-    return unidecode(text)
+    text = unidecode(text)
+    text = text.replace(os.linesep, ' ')
+    text = text.replace('\n', ' ')
+    return unidecode(text).replace(os.linesep, '').replace('\n', '')
 
 """
 # flagged for deletion
@@ -164,17 +180,18 @@ def get_batch_aw(pdf_file):
         print('looking at {}, {}.'.format(pdf_file, filename))
         try:
             text = str(((pytesseract.image_to_string(Image.open(filename)))))
-            text = text.replace('-\n', '')
+            text = remove_weird(text)
             batch = get_batch(text)
             aw = get_aw(text)
             if batch is not None and aw is not None:
+                if DEBUG: print('batch: ' + batch)
+                if DEBUG: print('aw: ' + aw)
                 return batch, aw
             #print(text)
             #print('output_text is now {} lines.'.format(len(output_text)))
         except Exception as e:
             # do nothing
             print ('Exception: {}'.format(e))
-    
     mydir = os.getcwd()
     filelist = [ f for f in os.listdir(mydir) if f.endswith(".jpg") ]
     for f in filelist:
@@ -186,33 +203,47 @@ def main():
     parser.add_argument("-v", "--verbose", help="increase output verbosity",
                     action="store_true")
     args = parser.parse_args()
+    rotated = False
     if args.verbose:
         global DEBUG
         DEBUG = True
-    
-    os.chdir("\\\\sieve\\scans")
-    if os.path.exists('rotated.pdf'):
-        os.remove('rotated.pdf')
+    while True:
+        os.chdir("\\\\sieve\\scans")
+        if os.path.exists('rotated.pdf'):
+            os.remove('rotated.pdf')
+        for file in glob.glob("*.jpg"):
+            os.remove(file)
 
-    for file in glob.glob("*.pdf"):
-        filepath = file
+        for file in glob.glob("*.pdf"):
+            start = time.time()
+            filepath = file
 
-        # Try to read
-        batch, aw_no = get_batch_aw(filepath)
-        
-        # If reads as junk try rotating
-        if batch is None:
-            if DEBUG: print('Failed so going to try again with rotation...')
-            rotate(filepath)
-            batch, aw_no = get_batch_aw('rotated.pdf')
-            if os.path.exists('rotated.pdf'):
-                os.remove('rotated.pdf')
-        if batch is None:
-            print('saving as unclassified')
-            move_to_unclassified(filepath)
-        else:
-            print('saving as classified')
-            move_to_classified(filepath, batch, aw_no)
+            # Try to read
+            batch, aw_no = get_batch_aw(filepath)
+            
+            # If reads as junk try rotating
+            if batch is None:
+                if DEBUG: print('Failed so going to try again with rotation...')
+                rotate(filepath)
+                batch, aw_no = get_batch_aw('rotated.pdf')
+                if batch is not None:
+                    rotated = True
+            if batch is None:
+                print('saving as unclassified')
+                move_to_unclassified(filepath)
+            else:
+                print('saving as classified')
+                if rotated:
+                    print('Saving rotated version of {}.'.format(file))
+                    move_to_classified('rotated.pdf', batch, aw_no)
+                else:
+                    move_to_classified(filepath, batch, aw_no)
+            end = time.time()
+            print('finished {} in {} seconds.'.format(file, (end - start)))
+            for file in glob.glob("*.jpg"):
+                os.remove(file)
+        print('Sleeping 10 seconds...')
+        time.sleep(10)
 
 if __name__ == "__main__":
     main()
