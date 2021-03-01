@@ -235,11 +235,7 @@ def main():
                 move_to_unclassified(filepath)
             else:
                 print('saving as classified')
-                if rotated:
-                    print('Saving rotated version of {}.'.format(file))
-                    move_to_classified('rotated.pdf', batch, aw_no)
-                else:
-                    move_to_classified(filepath, batch, aw_no)
+                move_to_classified(filepath, batch, aw_no)
             end = time.time()
             print('finished {} in {} seconds.'.format(file, (end - start)))
             for file in glob.glob("*.jpg"):
