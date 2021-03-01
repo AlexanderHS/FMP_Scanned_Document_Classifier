@@ -67,6 +67,8 @@ def get_batch(text):
         except IndexError:
             return None
         index += 1
+    if batch.startswith('45'):
+        batch = '15' + batch[2:]
     return guess
 
 def move_to_unclassified(filepath):
