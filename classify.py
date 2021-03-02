@@ -46,7 +46,7 @@ def get_aw(text):
         except IndexError:
             return None
         index += 1
-    return guess
+    return guess.replace('\'', '').replace('\", '')
 
 def get_batch(text):
     #if 'Batch' not in text:
@@ -69,7 +69,7 @@ def get_batch(text):
         index += 1
     if guess.startswith('4'):
         guess = '1' + guess[1:]
-    return guess
+    return guess.replace('\'', '').replace('\", '')
 
 def move_to_unclassified(filepath):
     dest_path = '\\\\fm-fil-01\\public\\SCANS\\'
