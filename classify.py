@@ -27,7 +27,7 @@ def print_pages(pdf_file):
     for pg, img in enumerate(images):
         return (ocr_core(img))
 
-def is_int(s):
+def is_positive_int(s):
     try: 
         _ = int(s)
         if _ < 0:
@@ -41,7 +41,7 @@ def get_aw(text):
     #    return None
     guess = ''
     index = 0
-    while not (guess.startswith('AW-') and is_int(guess[3:]) and len(guess) > 7 and len(guess) < 10):
+    while not (guess.startswith('AW-') and is_positive_int(guess[3:]) and len(guess) > 7 and len(guess) < 10):
         #if DEBUG: print('considering AW.. guess: {}'.format(guess))
         try:
             guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
@@ -55,7 +55,7 @@ def get_batch(text):
     #    return None
     guess = ''
     index = 0
-    while len(guess) < 7 or not is_int(guess[0:7]) or len(guess) > 8:
+    while len(guess) < 7 or not is_positive_int(guess[0:7]) or len(guess) > 8:
         #if DEBUG: print('considering batch guess: {}'.format(guess))
         try:
             guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
