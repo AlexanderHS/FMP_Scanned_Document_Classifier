@@ -39,7 +39,7 @@ def get_aw(text):
     #    return None
     guess = ''
     index = 0
-    while not (guess.startswith('AW-') and is_int(guess[4:])):
+    while not (guess.startswith('AW-') and is_int(guess[3:]) and len(guess) > 7 and len(guess) < 10):
         #if DEBUG: print('considering AW.. guess: {}'.format(guess))
         try:
             guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
@@ -53,7 +53,7 @@ def get_batch(text):
     #    return None
     guess = ''
     index = 0
-    while len(guess) < 7 or not is_int(guess[0:7]):
+    while len(guess) < 7 or not is_int(guess[0:7]) or len(guess) > 8:
         #if DEBUG: print('considering batch guess: {}'.format(guess))
         try:
             guess = text.strip().replace(os.linesep, ' ').split(' ')[index].strip()
@@ -91,6 +91,16 @@ def move_to_unclassified(filepath):
     print('File Moved. Done.')
     print()
 
+def clean_path(destination_full):
+    destination_full = destination_full.replace("<", "")
+    destination_full = destination_full.replace(">", "")
+    destination_full = destination_full.replace("*", "")
+    destination_full = destination_full.replace(":", "")
+    destination_full = destination_full.replace("?", "")
+    destination_full = destination_full.replace("\"", "")
+    destination_full = destination_full.replace("\'", "")
+    destination_full = destination_full.replace("/", "")
+    return destination_full
 
 def move_to_classified(filepath, batch, aw_no):
     dest_path = '\\\\fm-fil-01\\qa\\Batch Records\\'
@@ -107,6 +117,7 @@ def move_to_classified(filepath, batch, aw_no):
         index += 1
         destination_full = dest_path + batch + ' ' + aw_no + '_' + str(index).zfill(3) + '.pdf'
     try:
+        destination_full = clean_path(destination_full)
         if DEBUG: print("copying from '{}'' to '{}'".format(filepath, destination_full))
         shutil.copy(filepath, destination_full)
     except PermissionError:
