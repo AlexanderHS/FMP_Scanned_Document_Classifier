@@ -29,7 +29,9 @@ def print_pages(pdf_file):
 
 def is_int(s):
     try: 
-        int(s)
+        _ = int(s)
+        if _ < 0:
+            return False
         return True
     except ValueError:
         return False
