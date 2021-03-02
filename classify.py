@@ -230,7 +230,8 @@ def main():
         for file in glob.glob("*.jpg"):
             os.remove(file)
 
-        for file in glob.glob("*.pdf"):
+        files = glob.glob("*.pdf")
+        for file in list(reversed(sorted(files, key=len)))[:5]:
             start = time.time()
             filepath = file
 
