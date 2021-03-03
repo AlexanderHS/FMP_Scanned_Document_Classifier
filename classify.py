@@ -12,7 +12,8 @@ from pdf2image import convert_from_path
 from PIL import Image
 import time
 
-DELAY_SECONDS = 1
+DELAY_SECONDS = 0
+COLLECT_QTY = 1
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 DEBUG = True
@@ -33,6 +34,7 @@ def is_positive_int(s):
         _ = int(s)
         if _ < 0:
             return False
+        int(s[:1])
         return True
     except ValueError:
         return False
@@ -169,8 +171,7 @@ def rotate(filepath):
 
     for pagenum in range(pdf_reader.numPages):
         page = pdf_reader.getPage(pagenum)
-        if pagenum % 2:
-            page.rotateClockwise(180)
+        page.rotateClockwise(180)
         pdf_writer.addPage(page)
 
     pdf_out = open('rotated.pdf', 'wb')
@@ -187,13 +188,13 @@ def get_batch_aw(pdf_file):
     image_counter = 1
     print('Splitting {} into pages...'.format(pdf_file))
     for page in pages:
-        filename = "page_"+str(image_counter)+".jpg"
+        filename = pdf_file + "_page_"+str(image_counter)+".jpg"
         page.save(filename, 'JPEG')
         image_counter = image_counter + 1
     filelimit = image_counter-1
     print('Finished making files.')
     for i in range(1, filelimit + 1):
-        filename = "page_"+str(i)+".jpg"
+        filename = pdf_file + "_page_"+str(i)+".jpg"
         print('looking at {}, {}.'.format(pdf_file, filename))
         try:
             text = str(((pytesseract.image_to_string(Image.open(filename)))))
@@ -209,10 +210,6 @@ def get_batch_aw(pdf_file):
         except Exception as e:
             # do nothing
             print ('Exception: {}'.format(e))
-    mydir = os.getcwd()
-    filelist = [ f for f in os.listdir(mydir) if f.endswith(".jpg") ]
-    for f in filelist:
-        os.remove(os.path.join(mydir, f))
     return None, None
 
 def main():
@@ -224,15 +221,15 @@ def main():
     if args.verbose:
         global DEBUG
         DEBUG = True
+    os.chdir("\\\\sieve\\scans")
+    if os.path.exists('rotated.pdf'):
+        os.remove('rotated.pdf')
+    for file in glob.glob("*.jpg"):
+        os.remove(file)
     while True:
-        os.chdir("\\\\sieve\\scans")
-        if os.path.exists('rotated.pdf'):
-            os.remove('rotated.pdf')
-        for file in glob.glob("*.jpg"):
-            os.remove(file)
-
         files = glob.glob("*.pdf")
-        for file in list(reversed(sorted(files, key=len)))[:2]:
+        #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
+        for file in list(reversed(sorted(files, key=len)))[:COLLECT_QTY]:
             start = time.time()
             filepath = file
 
@@ -256,7 +253,7 @@ def main():
             print('finished {} in {} seconds.'.format(file, (end - start)))
             for file in glob.glob("*.jpg"):
                 os.remove(file)
-        print(f'Sleeping {DELAY_SECONDS} seconds...')
+        if DELAY_SECONDS > 0: print(f'Sleeping {DELAY_SECONDS} seconds...')
         time.sleep(DELAY_SECONDS)
 
 if __name__ == "__main__":
