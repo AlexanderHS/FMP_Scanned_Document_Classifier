@@ -12,6 +12,7 @@ from pdf2image import convert_from_path
 from PIL import Image
 import time
 
+DELAY_SECONDS = 1
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 DEBUG = True
@@ -231,7 +232,7 @@ def main():
             os.remove(file)
 
         files = glob.glob("*.pdf")
-        for file in list(reversed(sorted(files, key=len)))[:5]:
+        for file in list(reversed(sorted(files, key=len)))[:2]:
             start = time.time()
             filepath = file
 
@@ -255,8 +256,8 @@ def main():
             print('finished {} in {} seconds.'.format(file, (end - start)))
             for file in glob.glob("*.jpg"):
                 os.remove(file)
-        print('Sleeping 10 seconds...')
-        time.sleep(10)
+        print(f'Sleeping {DELAY_SECONDS} seconds...')
+        time.sleep(DELAY_SECONDS)
 
 if __name__ == "__main__":
     main()
