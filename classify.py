@@ -253,8 +253,9 @@ def main():
             print('finished {} in {} seconds.'.format(file, (end - start)))
             for file in glob.glob("*.jpg"):
                 os.remove(file)
-        if DELAY_SECONDS > 0: print(f'Sleeping {DELAY_SECONDS} seconds...')
-        time.sleep(DELAY_SECONDS)
+        if DELAY_SECONDS > 0:
+            print(f'Sleeping {DELAY_SECONDS} seconds...')
+            time.sleep(DELAY_SECONDS)
 
 if __name__ == "__main__":
     main()
