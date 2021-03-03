@@ -227,6 +227,11 @@ def main():
     for file in glob.glob("*.jpg"):
         os.remove(file)
     while True:
+        os.chdir("\\\\sieve\\scans")
+        if os.path.exists('rotated.pdf'):
+            os.remove('rotated.pdf')
+        for file in glob.glob("*.jpg"):
+            os.remove(file)
         files = glob.glob("*.pdf")
         #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
         for file in list(reversed(sorted(files, key=len)))[:COLLECT_QTY]:
