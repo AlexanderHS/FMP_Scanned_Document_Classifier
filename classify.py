@@ -12,8 +12,8 @@ from pdf2image import convert_from_path
 from PIL import Image
 import time
 
-DELAY_SECONDS = 0
-COLLECT_QTY = 1
+DELAY_SECONDS = 10
+COLLECT_QTY = 5
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 DEBUG = True
