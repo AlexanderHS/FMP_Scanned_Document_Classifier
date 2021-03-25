@@ -1,3 +1,4 @@
+from classify import COLLECT_QTY
 import os, glob
 
 def bylength(word1,word2):
@@ -19,4 +20,13 @@ def is_positive_int(s):
     except ValueError:
         return False
 
-print(is_positive_int('+45'))
+COLLECT_QTY = 1
+os.chdir("\\\\sieve\\scans")
+if os.path.exists('rotated.pdf'):
+    os.remove('rotated.pdf')
+for file in glob.glob("*.jpg"):
+    os.remove(file)
+files = glob.glob("*.pdf")
+#for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
+for file in list(reversed(sorted(files, key=len)))[:COLLECT_QTY]:
+    print(file)
