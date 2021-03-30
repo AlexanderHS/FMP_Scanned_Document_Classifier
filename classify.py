@@ -13,7 +13,8 @@ from PIL import Image
 import time
 
 COLLECT_QTY = 10
-TRIES = 5
+TRIES = 11
+DELAY = 5
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 DEBUG = True
@@ -260,8 +261,9 @@ def main():
             print('finished {} in {} seconds.'.format(file, (end - start)))
             for file in glob.glob("*.jpg"):
                 os.remove(file)
-        print('waiting 10...')
-        time.sleep(10)
+        time_total = DELAY * attempts
+        print(f"Wait {DELAY} seconds. Total wait {time_total}.")
+        time.sleep(DELAY)
 
 
 if __name__ == "__main__":
