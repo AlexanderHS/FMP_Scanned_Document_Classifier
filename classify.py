@@ -13,6 +13,7 @@ from PIL import Image
 import time
 
 COLLECT_QTY = 10
+TRIES = 5
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 DEBUG = True
@@ -220,42 +221,48 @@ def main():
     if args.verbose:
         global DEBUG
         DEBUG = True
-    os.chdir("\\\\sieve\\scans")
-    if os.path.exists('rotated.pdf'):
-        os.remove('rotated.pdf')
-    for file in glob.glob("*.jpg"):
-        os.remove(file)
-    os.chdir("\\\\sieve\\scans")
-    if os.path.exists('rotated.pdf'):
-        os.remove('rotated.pdf')
-    for file in glob.glob("*.jpg"):
-        os.remove(file)
-    files = glob.glob("*.pdf")
-    #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
-    for file in list(reversed(sorted(files, key=len)))[:COLLECT_QTY]:
-        start = time.time()
-        filepath = file
-
-        # Try to read
-        batch, aw_no = get_batch_aw(filepath)
-        
-        # If reads as junk try rotating
-        if batch is None:
-            if DEBUG: print('Failed so going to try again with rotation...')
-            rotate(filepath)
-            batch, aw_no = get_batch_aw('rotated.pdf')
-            if batch is not None:
-                rotated = True
-        if batch is None:
-            print('saving as unclassified')
-            move_to_unclassified(filepath)
-        else:
-            print('saving as classified')
-            move_to_classified(filepath, batch, aw_no)
-        end = time.time()
-        print('finished {} in {} seconds.'.format(file, (end - start)))
+    attempts = 0
+    while attempts < TRIES:
+        attempts += 1
+        os.chdir("\\\\sieve\\scans")
+        if os.path.exists('rotated.pdf'):
+            os.remove('rotated.pdf')
         for file in glob.glob("*.jpg"):
             os.remove(file)
+        os.chdir("\\\\sieve\\scans")
+        if os.path.exists('rotated.pdf'):
+            os.remove('rotated.pdf')
+        for file in glob.glob("*.jpg"):
+            os.remove(file)
+        files = glob.glob("*.pdf")
+        #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
+        for file in list(reversed(sorted(files, key=len)))[:COLLECT_QTY]:
+            start = time.time()
+            filepath = file
+
+            # Try to read
+            batch, aw_no = get_batch_aw(filepath)
+            
+            # If reads as junk try rotating
+            if batch is None:
+                if DEBUG: print('Failed so going to try again with rotation...')
+                rotate(filepath)
+                batch, aw_no = get_batch_aw('rotated.pdf')
+                if batch is not None:
+                    rotated = True
+            if batch is None:
+                print('saving as unclassified')
+                move_to_unclassified(filepath)
+            else:
+                print('saving as classified')
+                move_to_classified(filepath, batch, aw_no)
+            end = time.time()
+            print('finished {} in {} seconds.'.format(file, (end - start)))
+            for file in glob.glob("*.jpg"):
+                os.remove(file)
+        print('waiting 10...')
+        time.sleep(10)
+
 
 if __name__ == "__main__":
     main()
