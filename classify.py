@@ -11,10 +11,13 @@ import pdf2image
 from pdf2image import convert_from_path
 from PIL import Image
 import time
+import ghostscript
+import locale
 
 COLLECT_QTY = 10
 TRIES = 11
 DELAY = 5
+MAX_PAGES_TO_INSPECT = 10
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 DEBUG = True
@@ -181,24 +184,40 @@ def rotate(filepath):
     pdf_in.close()
 
 
+def pdf2jpeg(pdf_input_path, jpeg_output_path):
+    args = ["pef2jpeg", # actual value doesn't matter
+            "-dNOPAUSE",
+            "-sDEVICE=jpeg",
+            "-r500",
+            "-sOutputFile=" + jpeg_output_path,
+            pdf_input_path]
+
+    encoding = locale.getpreferredencoding()
+    args = [a.encode(encoding) for a in args]
+
+    ghostscript.Ghostscript(*args)
+
+
 def get_batch_aw(pdf_file):
-    os.chdir("\\\\sieve\\scans")
     print()
     print('Opening {}'.format(pdf_file))
-    pages = convert_from_path(pdf_file, 500)
-    image_counter = 1
+
     print('Splitting {} into pages...'.format(pdf_file))
-    for page in pages:
-        filename = pdf_file + "_page_"+str(image_counter)+".jpg"
-        page.save(filename, 'JPEG')
-        image_counter = image_counter + 1
-    filelimit = image_counter-1
+    os.chdir("\\\\sieve\\scans")
+    for i in glob.glob("*.jpeg"):
+        os.remove(i)
+    pdf2jpeg(pdf_file,"page%03d.jpeg")
     print('Finished making files.')
-    for i in range(1, filelimit + 1):
-        filename = pdf_file + "_page_"+str(i)+".jpg"
-        print('looking at {}, {}.'.format(pdf_file, filename))
+
+    pages_inspected = 0
+    for i in glob.glob("*.jpeg"):
+        print('looking at {}, {}.'.format(pdf_file, i))
+        pages_inspected += 1
+        if pages_inspected > MAX_PAGES_TO_INSPECT:
+            print("HIT MAX Pages so giving up on this doc!")
+            return None, None
         try:
-            text = str(((pytesseract.image_to_string(Image.open(filename)))))
+            text = str(((pytesseract.image_to_string(Image.open(i)))))
             text = remove_weird(text)
             batch = get_batch(text)
             aw = get_aw(text)
@@ -206,8 +225,6 @@ def get_batch_aw(pdf_file):
                 if DEBUG: print('batch: ' + batch)
                 if DEBUG: print('aw: ' + aw)
                 return batch, aw
-            #print(text)
-            #print('output_text is now {} lines.'.format(len(output_text)))
         except Exception as e:
             # do nothing
             print ('Exception: {}'.format(e))
@@ -233,7 +250,7 @@ def main():
         os.chdir("\\\\sieve\\scans")
         if os.path.exists('rotated.pdf'):
             os.remove('rotated.pdf')
-        for file in glob.glob("*.jpg"):
+        for file in glob.glob("*.jpeg"):
             os.remove(file)
         files = glob.glob("*.pdf")
         #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
