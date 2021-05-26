@@ -13,6 +13,7 @@ from PIL import Image
 import time
 import ghostscript
 import locale
+import datetime
 
 COLLECT_QTY = 10
 TRIES = 11
@@ -72,6 +73,13 @@ def get_batch(text):
                 _ = calendar.month_abbr[month_no]
             except:
                 #print("Error: {} in {} doesn't look like a month".format(month_no, guess))
+                guess = '1'
+            try:
+                year_no = int(guess[0:2])
+                current_two_digit_year = int(str(datetime.datetime.now().year)[2:4])
+                if current_two_digit_year < year_no:
+                    raise RuntimeError from None
+            except:
                 guess = '1'
         except IndexError:
             return None
