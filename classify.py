@@ -19,6 +19,7 @@ COLLECT_QTY = 10
 TRIES = 11
 DELAY = 5
 MAX_PAGES_TO_INSPECT = 10
+PATH_READ = '\\\\fm-fil-01\public\SCANS\Awaiting Classification'
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 DEBUG = True
@@ -211,7 +212,7 @@ def get_batch_aw(pdf_file):
     print('Opening {}'.format(pdf_file))
 
     print('Splitting {} into pages...'.format(pdf_file))
-    os.chdir("\\\\sieve\\scans")
+    os.chdir(PATH_READ)
     for i in glob.glob("*.jpeg"):
         os.remove(i)
     pdf2jpeg(pdf_file,"page%03d.jpeg")
@@ -250,12 +251,12 @@ def main():
     attempts = 0
     while attempts < TRIES:
         attempts += 1
-        os.chdir("\\\\sieve\\scans")
+        os.chdir(PATH_READ)
         if os.path.exists('rotated.pdf'):
             os.remove('rotated.pdf')
         for file in glob.glob("*.jpg"):
             os.remove(file)
-        os.chdir("\\\\sieve\\scans")
+        os.chdir(PATH_READ)
         if os.path.exists('rotated.pdf'):
             os.remove('rotated.pdf')
         for file in glob.glob("*.jpeg"):
