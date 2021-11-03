@@ -193,11 +193,45 @@ def rotate(filepath):
     pdf_in.close()
 
 
-def pdf2jpeg(pdf_input_path, jpeg_output_path):
+def pdf2jpeg_stage2(pdf_input_path, jpeg_output_path):
     args = ["pef2jpeg", # actual value doesn't matter
             "-dNOPAUSE",
             "-sDEVICE=jpeg",
             "-r500",
+            "-dFirstPage=6",
+            "-dFirstPage=12",
+            "-sOutputFile=" + jpeg_output_path,
+            pdf_input_path]
+
+    encoding = locale.getpreferredencoding()
+    args = [a.encode(encoding) for a in args]
+
+    ghostscript.Ghostscript(*args)
+
+    
+
+def pdf2jpeg_stage3(pdf_input_path, jpeg_output_path):
+    args = ["pef2jpeg", # actual value doesn't matter
+            "-dNOPAUSE",
+            "-sDEVICE=jpeg",
+            "-r500",
+            "-dFirstPage=2",
+            "-dLastPage=5",
+            "-sOutputFile=" + jpeg_output_path,
+            pdf_input_path]
+
+    encoding = locale.getpreferredencoding()
+    args = [a.encode(encoding) for a in args]
+
+    ghostscript.Ghostscript(*args)
+
+
+def pdf2jpeg_stage1(pdf_input_path, jpeg_output_path):
+    args = ["pef2jpeg", # actual value doesn't matter
+            "-dNOPAUSE",
+            "-sDEVICE=jpeg",
+            "-r500",
+            "-dLastPage=1",
             "-sOutputFile=" + jpeg_output_path,
             pdf_input_path]
 
@@ -211,20 +245,14 @@ def get_batch_aw(pdf_file):
     print()
     print('Opening {}'.format(pdf_file))
 
-    print('Splitting {} into pages...'.format(pdf_file))
     os.chdir(PATH_READ)
     for i in glob.glob("*.jpeg"):
         os.remove(i)
-    pdf2jpeg(pdf_file,"page%03d.jpeg")
-    print('Finished making files.')
 
-    pages_inspected = 0
+    print('STAGE 1 SPLIT...'.format(pdf_file))
+    pdf2jpeg_stage1(pdf_file,"page%03d.jpeg")
     for i in glob.glob("*.jpeg"):
         print('looking at {}, {}.'.format(pdf_file, i))
-        pages_inspected += 1
-        if pages_inspected > MAX_PAGES_TO_INSPECT:
-            print("HIT MAX Pages so giving up on this doc!")
-            return None, None
         try:
             text = str(((pytesseract.image_to_string(Image.open(i)))))
             text = remove_weird(text)
@@ -237,6 +265,42 @@ def get_batch_aw(pdf_file):
         except Exception as e:
             # do nothing
             print ('Exception: {}'.format(e))
+    
+    for file in glob.glob("*.jpeg"):
+        os.remove(file)
+
+    pdf2jpeg_stage2(pdf_file,"page%03d.jpeg")
+    for i in glob.glob("*.jpeg"):
+        print('looking at {}, {}.'.format(pdf_file, i))
+        try:
+            text = str(((pytesseract.image_to_string(Image.open(i)))))
+            text = remove_weird(text)
+            batch = get_batch(text)
+            aw = get_aw(text)
+            if batch is not None and aw is not None:
+                if DEBUG: print('batch: ' + batch)
+                if DEBUG: print('aw: ' + aw)
+                return batch, aw
+        except Exception as e:
+            # do nothing
+            print ('Exception: {}'.format(e))
+
+    pdf2jpeg_stage3(pdf_file,"page%03d.jpeg")
+    for i in glob.glob("*.jpeg"):
+        print('looking at {}, {}.'.format(pdf_file, i))
+        try:
+            text = str(((pytesseract.image_to_string(Image.open(i)))))
+            text = remove_weird(text)
+            batch = get_batch(text)
+            aw = get_aw(text)
+            if batch is not None and aw is not None:
+                if DEBUG: print('batch: ' + batch)
+                if DEBUG: print('aw: ' + aw)
+                return batch, aw
+        except Exception as e:
+            # do nothing
+            print ('Exception: {}'.format(e))
+
     return None, None
 
 def main():
@@ -271,12 +335,15 @@ def main():
             batch, aw_no = get_batch_aw(filepath)
             
             # If reads as junk try rotating
+            '''
             if batch is None:
                 if DEBUG: print('Failed so going to try again with rotation...')
                 rotate(filepath)
                 batch, aw_no = get_batch_aw('rotated.pdf')
                 if batch is not None:
                     rotated = True
+            '''
+            
             if batch is None:
                 print('saving as unclassified')
                 move_to_unclassified(filepath)
