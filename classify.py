@@ -14,12 +14,17 @@ import time
 import ghostscript
 import locale
 import datetime
+import csv
 
 COLLECT_QTY = 10
-TRIES = 11
+TRIES = 11000000
 DELAY = 5
 MAX_PAGES_TO_INSPECT = 10
 PATH_READ = '\\\\fm-fil-01\public\SCANS\Awaiting Classification'
+#PATH_READ = '\\\\fm-fil-01\public\SCANS\Awaiting Classification\Recategorisation'
+WORK_ORDER_PATH = '\\\\fm-fil-01\Public\Alex HS\Data Folder\WorkOrders.csv'
+UNCLASSIFIED_PATH = '\\\\fm-fil-01\\public\\SCANS\\'
+#UNCLASSIFIED_PATH = 'P:\\SCANS\\Awaiting Classification\\Recategorisation\\FAILED_TO_CLASSIFY\\'
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 DEBUG = True
@@ -90,7 +95,7 @@ def get_batch(text):
     return guess.replace('\'', '').replace('\"', '')
 
 def move_to_unclassified(filepath):
-    dest_path = '\\\\fm-fil-01\\public\\SCANS\\'
+    dest_path = UNCLASSIFIED_PATH
     #dest_path = 'unclassified/'
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
@@ -121,6 +126,9 @@ def clean_path(destination_full):
     return destination_full
 
 def move_to_classified(filepath, batch, aw_no):
+    with open(WORK_ORDER_PATH, mode='r') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',', quotechar='"')
+        work_orders = {rows[0]:rows[1] for rows in reader}
     dest_path = '\\\\fm-fil-01\\qa\\Batch Records\\'
     #dest_path = 'Batch_Records/'
     dest_path += '20' + batch[0:2] + '\\'
@@ -129,11 +137,15 @@ def move_to_classified(filepath, batch, aw_no):
     if not os.path.exists(dest_path):
         os.makedirs(dest_path)
     destination_full = dest_path + batch + ' ' + aw_no + '.pdf'
+    if aw_no in work_orders:
+        destination_full = dest_path + batch + ' ' + aw_no + ' ' + work_orders[aw_no] + '.pdf'
     index = 0;
-    while os.path.exists(destination_full):
+    temp_destination = destination_full
+    while os.path.exists(temp_destination):
         if DEBUG: print('Path ' + destination_full + ' was taken so trying next...')
         index += 1
-        destination_full = dest_path + batch + ' ' + aw_no + '_' + str(index).zfill(3) + '.pdf'
+        temp_destination = destination_full[:-4] + ' ' + str(index).zfill(3) + '.pdf'
+    destination_full = temp_destination
     try:
         destination_full = clean_path(destination_full)
         if DEBUG: print("copying from '{}'' to '{}'".format(filepath, destination_full))
@@ -198,8 +210,8 @@ def pdf2jpeg_stage2(pdf_input_path, jpeg_output_path):
             "-dNOPAUSE",
             "-sDEVICE=jpeg",
             "-r500",
-            "-dFirstPage=6",
-            "-dFirstPage=12",
+            "-dFirstPage=2",
+            "-dLastPage=4",
             "-sOutputFile=" + jpeg_output_path,
             pdf_input_path]
 
@@ -215,8 +227,8 @@ def pdf2jpeg_stage3(pdf_input_path, jpeg_output_path):
             "-dNOPAUSE",
             "-sDEVICE=jpeg",
             "-r500",
-            "-dFirstPage=2",
-            "-dLastPage=5",
+            "-dFirstPage=5",
+            "-dLastPage=12",
             "-sOutputFile=" + jpeg_output_path,
             pdf_input_path]
 
