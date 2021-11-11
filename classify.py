@@ -29,7 +29,7 @@ UNCLASSIFIED_PATH = '\\\\fm-fil-01\\public\\SCANS\\'
 
 # RECLASSIFICATION
 PATH_READ = '\\\\fm-fil-01\public\SCANS\Awaiting Classification\Recategorisation'
-UNCLASSIFIED_PATH = 'P:\\SCANS\\Awaiting Classification\\Recategorisation\\FAILED_TO_CLASSIFY\\'
+UNCLASSIFIED_PATH = '\\\\fm-fil-01\\public\\SCANS\\Awaiting Classification\\Recategorisation\\FAILED_TO_CLASSIFY\\'
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 DEBUG = False
