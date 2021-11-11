@@ -15,19 +15,24 @@ import ghostscript
 import locale
 import datetime
 import csv
+import random
+from joblib import Parallel, delayed
 
-COLLECT_QTY = 10
-TRIES = 11000000
-DELAY = 5
+MAX_SIMULTANEOUS = 8
+COLLECT_QTY = 50
+TRIES = 200
+DELAY = 0.5
 MAX_PAGES_TO_INSPECT = 10
 PATH_READ = '\\\\fm-fil-01\public\SCANS\Awaiting Classification'
-#PATH_READ = '\\\\fm-fil-01\public\SCANS\Awaiting Classification\Recategorisation'
 WORK_ORDER_PATH = '\\\\fm-fil-01\Public\Alex HS\Data Folder\WorkOrders.csv'
 UNCLASSIFIED_PATH = '\\\\fm-fil-01\\public\\SCANS\\'
-#UNCLASSIFIED_PATH = 'P:\\SCANS\\Awaiting Classification\\Recategorisation\\FAILED_TO_CLASSIFY\\'
+
+# RECLASSIFICATION
+PATH_READ = '\\\\fm-fil-01\public\SCANS\Awaiting Classification\Recategorisation'
+UNCLASSIFIED_PATH = 'P:\\SCANS\\Awaiting Classification\\Recategorisation\\FAILED_TO_CLASSIFY\\'
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-DEBUG = True
+DEBUG = False
 
 def pdf_to_img(pdf_file):
     return pdf2image.convert_from_path(pdf_file)
@@ -204,6 +209,17 @@ def rotate(filepath):
     pdf_out.close()
     pdf_in.close()
 
+def pdf2jpeg_stage1(pdf_input_path, jpeg_output_path):
+    args = ["pef2jpeg", # actual value doesn't matter
+            "-dNOPAUSE",
+            "-sDEVICE=jpeg",
+            "-r500",
+            "-dLastPage=1",
+            "-sOutputFile=" + jpeg_output_path,
+            pdf_input_path]
+    encoding = locale.getpreferredencoding()
+    args = [a.encode(encoding) for a in args]
+    ghostscript.Ghostscript(*args)
 
 def pdf2jpeg_stage2(pdf_input_path, jpeg_output_path):
     args = ["pef2jpeg", # actual value doesn't matter
@@ -214,13 +230,9 @@ def pdf2jpeg_stage2(pdf_input_path, jpeg_output_path):
             "-dLastPage=4",
             "-sOutputFile=" + jpeg_output_path,
             pdf_input_path]
-
     encoding = locale.getpreferredencoding()
     args = [a.encode(encoding) for a in args]
-
     ghostscript.Ghostscript(*args)
-
-    
 
 def pdf2jpeg_stage3(pdf_input_path, jpeg_output_path):
     args = ["pef2jpeg", # actual value doesn't matter
@@ -231,40 +243,18 @@ def pdf2jpeg_stage3(pdf_input_path, jpeg_output_path):
             "-dLastPage=12",
             "-sOutputFile=" + jpeg_output_path,
             pdf_input_path]
-
     encoding = locale.getpreferredencoding()
     args = [a.encode(encoding) for a in args]
-
     ghostscript.Ghostscript(*args)
-
-
-def pdf2jpeg_stage1(pdf_input_path, jpeg_output_path):
-    args = ["pef2jpeg", # actual value doesn't matter
-            "-dNOPAUSE",
-            "-sDEVICE=jpeg",
-            "-r500",
-            "-dLastPage=1",
-            "-sOutputFile=" + jpeg_output_path,
-            pdf_input_path]
-
-    encoding = locale.getpreferredencoding()
-    args = [a.encode(encoding) for a in args]
-
-    ghostscript.Ghostscript(*args)
-
 
 def get_batch_aw(pdf_file):
-    print()
-    print('Opening {}'.format(pdf_file))
-
+    if (DEBUG): print()
+    if (DEBUG): print('Opening {}'.format(pdf_file))
     os.chdir(PATH_READ)
-    for i in glob.glob("*.jpeg"):
-        os.remove(i)
-
-    print('STAGE 1 SPLIT...'.format(pdf_file))
-    pdf2jpeg_stage1(pdf_file,"page%03d.jpeg")
-    for i in glob.glob("*.jpeg"):
-        print('looking at {}, {}.'.format(pdf_file, i))
+    if (DEBUG): print('STAGE 1 SPLIT...'.format(pdf_file))
+    pdf2jpeg_stage1(pdf_file, pdf_file + "page%03d.jpeg")
+    for i in glob.glob(pdf_file + "*.jpeg"):
+        if (DEBUG): print('looking at {}, {}.'.format(pdf_file, i))
         try:
             text = str(((pytesseract.image_to_string(Image.open(i)))))
             text = remove_weird(text)
@@ -278,12 +268,12 @@ def get_batch_aw(pdf_file):
             # do nothing
             print ('Exception: {}'.format(e))
     
-    for file in glob.glob("*.jpeg"):
+    for file in glob.glob(pdf_file + "*.jpeg"):
         os.remove(file)
 
-    pdf2jpeg_stage2(pdf_file,"page%03d.jpeg")
-    for i in glob.glob("*.jpeg"):
-        print('looking at {}, {}.'.format(pdf_file, i))
+    pdf2jpeg_stage2(pdf_file, pdf_file + "page%03d.jpeg")
+    for i in glob.glob(pdf_file + "*.jpeg"):
+        if (DEBUG): print('looking at {}, {}.'.format(pdf_file, i))
         try:
             text = str(((pytesseract.image_to_string(Image.open(i)))))
             text = remove_weird(text)
@@ -297,9 +287,12 @@ def get_batch_aw(pdf_file):
             # do nothing
             print ('Exception: {}'.format(e))
 
-    pdf2jpeg_stage3(pdf_file,"page%03d.jpeg")
-    for i in glob.glob("*.jpeg"):
-        print('looking at {}, {}.'.format(pdf_file, i))
+    for file in glob.glob(pdf_file + "*.jpeg"):
+        os.remove(file)
+
+    pdf2jpeg_stage3(pdf_file, pdf_file + "page%03d.jpeg")
+    for i in glob.glob(pdf_file + "*.jpeg"):
+        if (DEBUG): print('looking at {}, {}.'.format(pdf_file, i))
         try:
             text = str(((pytesseract.image_to_string(Image.open(i)))))
             text = remove_weird(text)
@@ -312,6 +305,9 @@ def get_batch_aw(pdf_file):
         except Exception as e:
             # do nothing
             print ('Exception: {}'.format(e))
+
+    for file in glob.glob(pdf_file + "*.jpeg"):
+        os.remove(file)
 
     return None, None
 
@@ -328,47 +324,55 @@ def main():
     while attempts < TRIES:
         attempts += 1
         os.chdir(PATH_READ)
-        if os.path.exists('rotated.pdf'):
-            os.remove('rotated.pdf')
-        for file in glob.glob("*.jpg"):
-            os.remove(file)
-        os.chdir(PATH_READ)
-        if os.path.exists('rotated.pdf'):
-            os.remove('rotated.pdf')
-        for file in glob.glob("*.jpeg"):
-            os.remove(file)
+        if os.path.exists('rotated.pdf'): os.remove('rotated.pdf')
+        for file in glob.glob("*.jpg"): os.remove(file)
         files = glob.glob("*.pdf")
-        #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
-        for file in list(reversed(sorted(files, key=len)))[:COLLECT_QTY]:
-            start = time.time()
-            filepath = file
+        print()
+        print(f"    *    *    *    FILES REMAINING: {len(files)}    *    *    *    ")
+        print()
 
-            # Try to read
-            batch, aw_no = get_batch_aw(filepath)
-            
-            # If reads as junk try rotating
-            '''
-            if batch is None:
-                if DEBUG: print('Failed so going to try again with rotation...')
-                rotate(filepath)
-                batch, aw_no = get_batch_aw('rotated.pdf')
-                if batch is not None:
-                    rotated = True
-            '''
-            
-            if batch is None:
-                print('saving as unclassified')
-                move_to_unclassified(filepath)
-            else:
-                print('saving as classified')
-                move_to_classified(filepath, batch, aw_no)
-            end = time.time()
-            print('finished {} in {} seconds.'.format(file, (end - start)))
-            for file in glob.glob("*.jpg"):
-                os.remove(file)
+        #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
+        random.shuffle(files)
+        files = files[:COLLECT_QTY]
+
+        Parallel(n_jobs=MAX_SIMULTANEOUS)(delayed(assign_location_to)(i) for i in files)
+
+        '''
+        for file in files[:COLLECT_QTY]:
+            assign_location_to(file)
+        '''
+
         time_total = DELAY * attempts
         print(f"Wait {DELAY} seconds. Total wait {time_total}.")
         time.sleep(DELAY)
+
+
+def assign_location_to(file):
+    start = time.time()
+    filepath = file
+
+    # Try to read
+    batch, aw_no = get_batch_aw(filepath)
+    
+    # If reads as junk try rotating
+    '''
+    if batch is None:
+        if DEBUG: print('Failed so going to try again with rotation...')
+        rotate(filepath)
+        batch, aw_no = get_batch_aw('rotated.pdf')
+        if batch is not None:
+            rotated = True
+    '''
+    
+    if batch is None:
+        print('saving as unclassified')
+        move_to_unclassified(filepath)
+    else:
+        print('saving as classified')
+        move_to_classified(filepath, batch, aw_no)
+    end = time.time()
+    print('finished {} in {} seconds.'.format(file, (end - start)))
+    for file in glob.glob(filepath + "*.jpg"): os.remove(file)
 
 
 if __name__ == "__main__":
