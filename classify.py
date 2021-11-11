@@ -28,8 +28,10 @@ WORK_ORDER_PATH = '\\\\fm-fil-01\Public\Alex HS\Data Folder\WorkOrders.csv'
 UNCLASSIFIED_PATH = '\\\\fm-fil-01\\public\\SCANS\\'
 
 # RECLASSIFICATION
+'''
 PATH_READ = '\\\\fm-fil-01\public\SCANS\Awaiting Classification\Recategorisation'
 UNCLASSIFIED_PATH = '\\\\fm-fil-01\\public\\SCANS\\Awaiting Classification\\Recategorisation\\FAILED_TO_CLASSIFY\\'
+'''
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 DEBUG = False
@@ -334,8 +336,8 @@ def main():
         #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
         random.shuffle(files)
         files = files[:COLLECT_QTY]
-
-        Parallel(n_jobs=MAX_SIMULTANEOUS)(delayed(assign_location_to)(i) for i in files)
+        if len(files) != 0:
+            Parallel(n_jobs=MAX_SIMULTANEOUS)(delayed(assign_location_to)(i) for i in files)
 
         '''
         for file in files[:COLLECT_QTY]:
