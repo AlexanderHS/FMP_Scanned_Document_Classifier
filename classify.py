@@ -18,8 +18,8 @@ import csv
 import random
 from joblib import Parallel, delayed
 
-MAX_SIMULTANEOUS = 8
-COLLECT_QTY = 50
+MAX_SIMULTANEOUS = 1
+COLLECT_QTY = 10
 TRIES = 200
 DELAY = 0.5
 MAX_PAGES_TO_INSPECT = 10
@@ -34,7 +34,7 @@ UNCLASSIFIED_PATH = '\\\\fm-fil-01\\public\\SCANS\\Awaiting Classification\\Reca
 '''
 
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-DEBUG = False
+DEBUG = True
 
 def pdf_to_img(pdf_file):
     return pdf2image.convert_from_path(pdf_file)
@@ -328,6 +328,7 @@ def main():
         os.chdir(PATH_READ)
         if os.path.exists('rotated.pdf'): os.remove('rotated.pdf')
         for file in glob.glob("*.jpg"): os.remove(file)
+        for file in glob.glob("*.jpeg"): os.remove(file)
         files = glob.glob("*.pdf")
         print()
         print(f"    *    *    *    FILES REMAINING: {len(files)}    *    *    *    ")
@@ -336,13 +337,16 @@ def main():
         #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
         random.shuffle(files)
         files = files[:COLLECT_QTY]
-        if len(files) != 0:
+        if MAX_SIMULTANEOUS == 1:
+            for file in files[:COLLECT_QTY]:
+                assign_location_to(file)
+        elif len(files) > MAX_SIMULTANEOUS:
             Parallel(n_jobs=MAX_SIMULTANEOUS)(delayed(assign_location_to)(i) for i in files)
-
-        '''
-        for file in files[:COLLECT_QTY]:
-            assign_location_to(file)
-        '''
+        elif False and len(files) > 1:
+            Parallel(n_jobs=len(files))(delayed(assign_location_to)(i) for i in files)
+        else:
+            for file in files[:COLLECT_QTY]:
+                assign_location_to(file)
 
         time_total = DELAY * attempts
         print(f"Wait {DELAY} seconds. Total wait {time_total}.")
