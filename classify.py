@@ -20,7 +20,6 @@ from joblib import Parallel, delayed
 
 MAX_SIMULTANEOUS = 1
 COLLECT_QTY = 10
-TRIES = 200
 DELAY = 0.5
 MAX_PAGES_TO_INSPECT = 10
 PATH_READ = '\\\\fm-fil-01\public\SCANS\Awaiting Classification'
@@ -322,35 +321,36 @@ def main():
     if args.verbose:
         global DEBUG
         DEBUG = True
-    attempts = 0
-    while attempts < TRIES:
-        attempts += 1
-        os.chdir(PATH_READ)
-        if os.path.exists('rotated.pdf'): os.remove('rotated.pdf')
-        for file in glob.glob("*.jpg"): os.remove(file)
-        for file in glob.glob("*.jpeg"): os.remove(file)
-        files = glob.glob("*.pdf")
-        print()
-        print(f"    *    *    *    FILES REMAINING: {len(files)}    *    *    *    ")
-        print()
+    while True:
+        try:
+            os.chdir(PATH_READ)
+            if os.path.exists('rotated.pdf'): os.remove('rotated.pdf')
+            for file in glob.glob("*.jpg"): os.remove(file)
+            for file in glob.glob("*.jpeg"): os.remove(file)
+            files = glob.glob("*.pdf")
+            print()
+            print(f"    *    *    *    FILES REMAINING: {len(files)}    *    *    *    ")
+            print()
 
-        #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
-        random.shuffle(files)
-        files = files[:COLLECT_QTY]
-        if MAX_SIMULTANEOUS == 1:
-            for file in files[:COLLECT_QTY]:
-                assign_location_to(file)
-        elif len(files) > MAX_SIMULTANEOUS:
-            Parallel(n_jobs=MAX_SIMULTANEOUS)(delayed(assign_location_to)(i) for i in files)
-        elif False and len(files) > 1:
-            Parallel(n_jobs=len(files))(delayed(assign_location_to)(i) for i in files)
-        else:
-            for file in files[:COLLECT_QTY]:
-                assign_location_to(file)
-
-        time_total = DELAY * attempts
-        print(f"Wait {DELAY} seconds. Total wait {time_total}.")
-        time.sleep(DELAY)
+            #for file in list((sorted(files, key=len)))[:COLLECT_QTY]:
+            random.shuffle(files)
+            files = files[:COLLECT_QTY]
+            if MAX_SIMULTANEOUS == 1:
+                for file in files[:COLLECT_QTY]:
+                    assign_location_to(file)
+            elif len(files) > MAX_SIMULTANEOUS:
+                Parallel(n_jobs=MAX_SIMULTANEOUS)(delayed(assign_location_to)(i) for i in files)
+            elif False and len(files) > 1:
+                Parallel(n_jobs=len(files))(delayed(assign_location_to)(i) for i in files)
+            else:
+                for file in files[:COLLECT_QTY]:
+                    assign_location_to(file)
+            print(f"Wait {DELAY} seconds.")
+            time.sleep(DELAY)
+        except KeyboardInterrupt:
+            break
+        except:
+            print(f'problem')
 
 
 def assign_location_to(file):

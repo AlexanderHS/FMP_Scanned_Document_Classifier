@@ -1,0 +1,11 @@
+
+
+v.001 - First version.
+v.002 - Changed timing so runs for minimum 30 secs. Better for scheduler.
+v.003 - Changed path to subfolder of //fm-fil-01/public/scans
+v.004 - Speed improvement. Added staged jpeg creation so don't make all jpegs when one would do.
+v.005 - Changed to append ItemCode to filenames by request (Juliet's).
+v.006 - Removed concurrency. Some update had broken and made buggy.
+v.007 - Addeed concurrency back in. Improved recovery. If file locked or moved simply retries rather than halts with exception.
+v.008 - Concurrency removed again. FM-TS-01 still hates it for reasons unknown.
+v.009 - No longer limited to set number of attempts. Now runs on infinite loop.
